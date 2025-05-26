@@ -1,0 +1,34 @@
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
+
+app = FastAPI()
+security = HTTPBasic()
+
+# Credenciales simuladas (en un entorno real, usa una base de datos)
+USERS = {
+    "admin": "password123"
+}
+
+def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
+    """Verifica las credenciales del usuario."""
+    correct_password = USERS.get(credentials.username)
+    if not correct_password or not secrets.compare_digest(credentials.password, correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+@app.get('/')
+async def home():
+    return {'message': 'Bienvenido a la API de FastAPI'}
+
+@app.get('/saludo/{nombre}')
+async def saludo(nombre: str, username: str = Depends(verify_credentials)):
+    return {'saludo': f'Hola, {nombre}! Bienvenido, {username}'}
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host='127.0.0.1', port=8000)
