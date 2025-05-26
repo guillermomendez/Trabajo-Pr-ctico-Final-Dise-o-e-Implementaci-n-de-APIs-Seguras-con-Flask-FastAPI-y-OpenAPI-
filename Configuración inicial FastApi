@@ -1,0 +1,13 @@
+app = FastAPI()
+
+@app.get('/')
+async def home():
+    return {'message': 'Bienvenido a la API de FastAPI'}
+
+@app.get('/saludo/{nombre}')
+async def saludo(nombre: str):
+    return {'saludo': f'Hola, {nombre}!'}
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host='127.0.0.1', port=8000)
