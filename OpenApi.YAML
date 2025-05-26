@@ -1,0 +1,65 @@
+openapi: 3.0.3
+info:
+  title: FastAPI con Autenticación Básica
+  version: 1.0.0
+  description: API de ejemplo con FastAPI y autenticación básica
+servers:
+  - url: http://127.0.0.1:8000
+    description: Servidor local
+paths:
+  /:
+    get:
+      summary: Ruta de bienvenida
+      description: Retorna un mensaje de bienvenida sin autenticación.
+      operationId: get_home
+      responses:
+        '200':
+          description: Respuesta exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Bienvenido a la API de FastAPI
+  /saludo/{nombre}:
+    get:
+      summary: Saludo personalizado
+      description: Retorna un saludo personalizado para el nombre proporcionado, requiere autenticación básica.
+      operationId: get_saludo
+      security:
+        - basicAuth: []
+      parameters:
+        - name: nombre
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Nombre del usuario a saludar
+      responses:
+        '200':
+          description: Respuesta exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  saludo:
+                    type: string
+                    example: Hola, test! Bienvenido, admin
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: Credenciales inválidas
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
