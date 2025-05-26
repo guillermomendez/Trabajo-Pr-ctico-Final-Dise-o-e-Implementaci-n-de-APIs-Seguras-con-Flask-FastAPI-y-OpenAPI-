@@ -1,0 +1,52 @@
+from flask import Flask, request, Response
+import base64
+
+app = Flask(__name__)
+
+# Credenciales simuladas (en un entorno real, usa una base de datos)
+USERS = {
+    "admin": "password123"
+}
+
+def check_auth(username, password):
+    """Verifica las credenciales del usuario."""
+    return username in USERS and USERS[username] == password
+
+def authenticate():
+    """Envía una respuesta 401 si la autenticación falla."""
+    return Response(
+        'No autorizado. Proporcione credenciales válidas.', 401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+@app.route('/')
+def home():
+    return {'message': 'Bienvenido a la API de Flask'}
+
+@app.route('/saludo/<nombre>')
+def saludo(nombre):
+    # Obtener el encabezado de autorización
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return authenticate()
+
+    # Verificar el formato del encabezado
+    if not auth_header.startswith('Basic '):
+        return authenticate()
+
+    # Decodificar las credenciales
+    try:
+        encoded_credentials = auth_header.split(' ')[1]
+        decoded_credentials = base64.b64decode(encoded_credentials).decode('utf-8')
+        username, password = decoded_credentials.split(':')
+    except:
+        return authenticate()
+
+    # Verificar las credenciales
+
+$0    if not check_auth(username, password):
+        return authenticate()
+
+    return {'saludo': f'Hola, {nombre}!'}
+
+if __name__ == '__main__':
+    app.run(debug=True)
