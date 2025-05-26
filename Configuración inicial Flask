@@ -1,0 +1,14 @@
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return {'message': 'Bienvenido a la API de Flask'}
+
+@app.route('/saludo/<nombre>')
+def saludo(nombre):
+    return {'saludo': f'Hola, {nombre}!'}
+
+if __name__ == '__main__':
+    app.run(debug=True)
